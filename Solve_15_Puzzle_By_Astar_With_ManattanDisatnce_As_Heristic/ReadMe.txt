@@ -1,4 +1,4 @@
-IDASTAR_NoOfMisplaced.java file which is implementation of A* Algorithm with no of misplaced tiles as heursitics repectvely. Please execute these files by running it on eclipse or anyother IDE. The code will ask a input state of 15 puzzle. please type the state as continous characters with comma
+ASTAR_Manhattan.java file which is implementation of A* Algorithm with no of misplaced tiles as heursitics repectvely. Please execute these files by running it on eclipse or anyother IDE. The code will ask a input state of 15 puzzle. please type the state as continous characters with comma
 For example your input should be like this 
 ip : 2,6,10,3,1,4,7,11,8,5,9,15,12,13,14,0 if the state is 
   2  6  10 3
