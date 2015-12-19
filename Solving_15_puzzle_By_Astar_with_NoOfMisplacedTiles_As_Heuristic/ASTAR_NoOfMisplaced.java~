@@ -1,12 +1,10 @@
-//This code takes a sequence of 15 puzzle and outputs the steps 
-//to reach goal by following A*  search Algorithm by using Manhattan distance heuristic
+//This code takes a sequence of 15 puzzle and outputs the steps to reach goal by following A* search Algorithm
 /***********************************************************************
  * Version History
  * 
  * Version_No		Date	  	Reason for Modification
- * 1.0			02-OCT-2015     Initial Version
+ * 1.0			27-Nov-2015     Initial Version
  */
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,19 +18,23 @@ import java.util.Queue;
 import java.util.Stack;
 
 //An atmoic structure to denote a state
-class State {
+class StateNode {
 	int[] state;
-	State parent;
+	StateNode parent;
 	int depth;
 	int heuristic;
 }
 
-class HeuristicComparatorMan implements Comparator<State>
+//custom comparator to add node with minimum heuristic to priority queue
+class HeuristicComparator implements Comparator<StateNode>
 {
     @Override
-    public int compare(State x, State y)
+    public int compare(StateNode x, StateNode y)
     {
-        
+        // Assume neither string is null. Real code should
+        // probably be more robust
+        // You could also just return x.length() - y.length(),
+        // which would be more efficient.
         if (x.heuristic < y.heuristic)
         {
             return -1;
@@ -44,38 +46,38 @@ class HeuristicComparatorMan implements Comparator<State>
         return 0;
     }
 }
-public class ASTAR_Manhattan {
-	private static final State NULL = null;
-	static int[] goal = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+public class ASTAR_NoOfMisplaced {
+	private static final StateNode NULL = null;
+	static int[] goal = { 0,1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
-	public boolean findPath(int[] state, int depth) {
+	public boolean findPath(int[] state) {
 		int[] statearray;
-		int noofexplorednodes=0;
 		HashSet<String> explored = new HashSet<String>();
-		Comparator<State> comparator = new HeuristicComparatorMan();
-        PriorityQueue<State> toexplore = 
-            new PriorityQueue<State>(100, comparator);
-		State start_state = new State();
-		State next_state = new State();
+		Comparator<StateNode> comparator = new HeuristicComparator();
+        PriorityQueue<StateNode> toexplore = 
+            new PriorityQueue<StateNode>(100, comparator);
+		StateNode start_state = new StateNode();
+		StateNode next_state = new StateNode();
 		start_state.state = state;
 		start_state.parent = null;
 		start_state.depth = 1;
 		start_state.heuristic = start_state.depth+ noOfMisplaced(state);
 		toexplore.add(start_state);
 		while (!toexplore.isEmpty()) {
-			noofexplorednodes+=1;
+			
 			next_state = toexplore.remove();
 			explored.add(returnStateString(next_state.state));
-			State temp_state = new State();
+			StateNode temp_state = new StateNode();
 
 			// Moving Left and checking if it is goal and adding to toexplore
 			// list if it is not a goal and not yet explored
 			statearray = moveLeft(next_state.state);
-			temp_state = new State();
+			
+			temp_state = new StateNode();
 			temp_state.state = statearray;
 			temp_state.parent = next_state;
 			temp_state.depth = next_state.depth + 1;
-			temp_state.heuristic = temp_state.depth + manHattanDistance(statearray);
+			temp_state.heuristic = temp_state.depth + noOfMisplaced(statearray);
 			if (Arrays.equals(statearray, goal)) {
 				System.out.println("depth is " + temp_state.depth);
 				printPath(temp_state);
@@ -86,11 +88,12 @@ public class ASTAR_Manhattan {
 			// Moving Right and checking if it is goal and adding to toexplore
 			// list if it is not a goal and not yet explored
 			statearray = moveRight(next_state.state);
-			temp_state = new State();
+			
+			temp_state = new StateNode();
 			temp_state.state = statearray;
 			temp_state.parent = next_state;
 			temp_state.depth = next_state.depth + 1;
-			temp_state.heuristic = temp_state.depth + manHattanDistance(statearray);
+			temp_state.heuristic = temp_state.depth + noOfMisplaced(statearray);
 			if (Arrays.equals(statearray, goal)) {
 				System.out.println("depth is " + temp_state.depth);
 				printPath(temp_state);
@@ -102,11 +105,12 @@ public class ASTAR_Manhattan {
 			// Moving Up and checking if it is goal and adding to toexplore list
 			// if it is not a goal and not yet explored
 			statearray = moveUp(next_state.state);
-			temp_state = new State();
+			
+			temp_state = new StateNode();
 			temp_state.state = statearray;
 			temp_state.parent = next_state;
 			temp_state.depth = next_state.depth + 1;
-			temp_state.heuristic = temp_state.depth + manHattanDistance(statearray);
+			temp_state.heuristic = temp_state.depth + noOfMisplaced(statearray);
 			if (Arrays.equals(statearray, goal)) {
 				System.out.println("depth is " + temp_state.depth);
 				printPath(temp_state);
@@ -117,11 +121,12 @@ public class ASTAR_Manhattan {
 			// Moving Down and checking if it is goal and adding to toexplore
 			// list if it is not a goal and not yet explored
 			statearray = moveDown(next_state.state);
-			temp_state = new State();
+			
+			temp_state = new StateNode();
 			temp_state.state = statearray;
 			temp_state.parent = next_state;
 			temp_state.depth = next_state.depth + 1;
-			temp_state.heuristic = temp_state.depth + manHattanDistance(statearray);
+			temp_state.heuristic = temp_state.depth + noOfMisplaced(statearray);
 			if (Arrays.equals(statearray, goal)) {
 				System.out.println("depth is " + temp_state.depth);
 				printPath(temp_state);
@@ -133,51 +138,7 @@ public class ASTAR_Manhattan {
 		}
 		return false;
 	}
-	
-    //Manhattan distance heurstic
-	public int manHattanDistance(int [] state)
-	  {
-		  int mandistance = 0;
-		  int[][] goalarray, statearray = new int[4][4];
-		  goalarray = build2darray(goal);
-		  statearray = build2darray(state);
-		  int currelement;
-		  for(int goalrow=0; goalrow<=3; goalrow+=1)
-		  {
-	        for(int goalcol=0; goalcol<=3; goalcol+=1)
-	        {
-	        	currelement = goalarray[goalrow][goalcol];
-	        	for(int staterow=0; staterow<=3; staterow+=1)
-	        	{
-	        		for(int statecol=0; statecol<=3; statecol+=1)
-	        		{
-	        			if(currelement == statearray[staterow][statecol])
-	        			{
-	        				mandistance +=  Math.abs(goalrow - staterow) + Math.abs(goalcol - statecol);	
-	        			}
-	        		}
-	        	}
-	        }
-			  
-		  }
-		  return mandistance;
-	  }
-	  
-	  public int[][] build2darray(int[] state)
-	  {
-		  int[][] conevrtedarray = new int[4][4];
-		  int index =0;
-		  for(int i=0; i<=3; i+=1)
-		  {
-			  for(int j=0; j<=3; j+=1)
-			  {
-				  conevrtedarray[i][j]=state[index];
-				  index+=1;
-			  }
-			  
-		  }
-		  return conevrtedarray;
-	  }
+    
 	// calculate misplaced tiles
 	public int noOfMisplaced(int[] stateArray)
 	{
@@ -201,7 +162,7 @@ public class ASTAR_Manhattan {
 
 	// Method to print step sequence. This path will just build the continuous
 	// paths form start state to goal state.
-	public void printPath(State curr_state) {
+	public void printPath(StateNode curr_state) {
 		ArrayList<int[]> path = new ArrayList<int[]>();
 		while (curr_state != NULL) {
 			path.add(0, curr_state.state);
@@ -298,11 +259,8 @@ public class ASTAR_Manhattan {
 	}
 
 	// Iterative Deepening Depth first Search
-	public void IterativeDFS(int[] state, int depth) {
-		for (int i = 1; i <= depth; i += 1) {
-			if (findPath(state, i))
-				return;
-		}
+	public void IterativeDFS(int[] state) {
+			 findPath(state);
 	}
 
 	// Driver method
@@ -316,8 +274,7 @@ public class ASTAR_Manhattan {
 			state[index] = Integer.parseInt(str.trim());
 			index += 1;
 		}
-		ASTAR_Manhattan bfs = new ASTAR_Manhattan();
-		bfs.IterativeDFS(state, 1000);
-
+		ASTAR_NoOfMisplaced bfs = new ASTAR_NoOfMisplaced();
+		bfs.IterativeDFS(state);
 	}
 }
